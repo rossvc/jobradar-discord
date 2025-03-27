@@ -45,6 +45,7 @@ async function getJobsToPost() {
         created_at BETWEEN NOW() - INTERVAL '7 hours' AND NOW() - INTERVAL '6 hours'
         AND is_software_engineering = true 
         AND is_active = true
+        AND is_us = true
         AND posted_to_discord = false
       ORDER BY created_at DESC
       LIMIT 50;
@@ -103,20 +104,7 @@ function createJobEmbed(job) {
     : "Not specified";
 
   // Set color based on experience level
-  let color;
-  switch (job.experience_level) {
-    case "internship":
-      color = 0x3498db; // Blue
-      break;
-    case "new grad":
-      color = 0x9b59b6; // Purple
-      break;
-    case "early career":
-      color = 0x2ecc71; // Green
-      break;
-    default:
-      color = 0x95a5a6; // Gray (for senior/other)
-  }
+  let color = 0x6d28d9;
 
   return new EmbedBuilder()
     .setColor(color)
