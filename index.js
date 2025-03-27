@@ -42,7 +42,7 @@ async function getJobsToPost() {
         created_at
       FROM job_analysis 
       WHERE 
-        created_at BETWEEN NOW() - INTERVAL '7 hours' AND NOW() - INTERVAL '6 hours'
+        created_at BETWEEN NOW() - INTERVAL '7 hours' AND NOW() - INTERVAL '4 hours'
         AND is_software_engineering = true 
         AND is_active = true
         AND is_us = true
