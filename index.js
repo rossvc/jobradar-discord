@@ -123,8 +123,7 @@ function createJobEmbed(job) {
       { name: "Remote", value: remoteStatus, inline: true },
       { name: "Salary", value: salaryText }
     )
-    .setFooter({ text: "JobRadar · Apply now" })
-    .setTimestamp(new Date(job.created_at));
+    .setFooter({ text: "JobRadar · Apply now" });
 }
 
 // Post jobs to appropriate Discord channels
