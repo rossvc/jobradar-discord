@@ -238,20 +238,9 @@ async function postJobsToDiscord() {
 function startJobPostingSchedule() {
   console.log("Starting job posting schedule...");
 
-  cron.schedule("* * * * *", async () => {
-    if (!client.isPostingJobs) {
-      client.isPostingJobs = true;
-      try {
-        console.log("Running scheduled job posting task...");
-        await postJobsToDiscord();
-      } finally {
-        client.isPostingJobs = false;
-      }
-    } else {
-      console.log(
-        "Job posting schedule already running - skipping new schedule creation"
-      );
-    }
+  cron.schedule("*/5 * * * *", async () => {
+    console.log("Running scheduled job posting task...");
+    await postJobsToDiscord();
   });
 
   postJobsToDiscord();
