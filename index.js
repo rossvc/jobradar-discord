@@ -48,7 +48,6 @@ async function getJobsToPost() {
         AND is_us = true
         AND posted_to_discord = false
       ORDER BY created_at DESC
-      LIMIT 50;
     `;
 
     const result = await client.query(query);
@@ -127,7 +126,7 @@ function createJobEmbed(job) {
       },
       { name: "Salary", value: salaryText }
     )
-    .setFooter({ text: "JobRadar · Apply now · Posted 6 hours ago" })
+    .setFooter({ text: "JobRadar · Apply now" })
     .setTimestamp(new Date(job.created_at));
 }
 
