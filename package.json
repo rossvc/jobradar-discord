@@ -1,0 +1,19 @@
+{
+    "name": "jobradar-discord-bot",
+    "version": "1.0.0",
+    "description": "Discord bot for posting JobRadar listings",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js",
+      "dev": "nodemon index.js"
+    },
+    "dependencies": {
+      "discord.js": "^14.13.0",
+      "dotenv": "^16.3.1",
+      "pg": "^8.14.0",
+      "node-cron": "^3.0.2"
+    },
+    "devDependencies": {
+      "nodemon": "^3.0.1"
+    }
+  }
