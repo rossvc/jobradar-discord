@@ -105,8 +105,8 @@ function createJobEmbed(job) {
   // Set color based on experience level
   let color = 0x6d28d9;
   let locations_value = job.job_location;
-  if (locations_value.length > 1024) {
-    locations_value = locations_value.slice(0, 1021) + "...";
+  if (locations_value.length > 256) {
+    locations_value = locations_value.slice(0, 253) + "...";
   }
 
   return new EmbedBuilder()
