@@ -225,7 +225,7 @@ function startJobPostingSchedule() {
   console.log("Starting job posting schedule...");
 
   // Run every hour at the 15-minute mark
-  cron.schedule("1 * * * *", async () => {
+  cron.schedule("* * * * *", async () => {
     console.log("Running scheduled job posting task...");
     await postJobsToDiscord();
   });
