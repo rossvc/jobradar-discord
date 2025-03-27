@@ -104,6 +104,10 @@ function createJobEmbed(job) {
 
   // Set color based on experience level
   let color = 0x6d28d9;
+  let locations_value = job.job_location;
+  if (locations_value.length > 1024) {
+    locations_value = locations_value.slice(0, 1021) + "...";
+  }
 
   return new EmbedBuilder()
     .setColor(color)
@@ -113,17 +117,10 @@ function createJobEmbed(job) {
     .addFields(
       {
         name: "Location",
-        value: job.job_location || "Not specified",
+        value: locations_value || "Not specified",
         inline: true,
       },
       { name: "Remote", value: remoteStatus, inline: true },
-      {
-        name: "Experience",
-        value:
-          job.experience_level.charAt(0).toUpperCase() +
-          job.experience_level.slice(1),
-        inline: true,
-      },
       { name: "Salary", value: salaryText }
     )
     .setFooter({ text: "JobRadar · Apply now" })
