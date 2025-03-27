@@ -222,13 +222,11 @@ async function postJobsToDiscord() {
       if (channel) {
         for (const job of jobsByCategory["internship"]) {
           await channel.send({ embeds: [createJobEmbed(job)] });
+          await markJobAsPosted(job.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
     }
-
-    // Mark all jobs as posted
-    await markJobsAsPosted(postedJobIds);
   } catch (error) {
     console.error("Error posting jobs to Discord:", error);
   }
@@ -238,7 +236,7 @@ async function postJobsToDiscord() {
 function startJobPostingSchedule() {
   console.log("Starting job posting schedule...");
 
-  cron.schedule("*/5 * * * *", async () => {
+  cron.schedule("* * * * *", async () => {
     console.log("Running scheduled job posting task...");
     await postJobsToDiscord();
   });
