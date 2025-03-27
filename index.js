@@ -111,7 +111,6 @@ function createJobEmbed(job) {
     .setTitle(`${job.job_title}`)
     .setURL(fullRedirectUrl)
     .setAuthor({ name: job.job_company })
-    .setDescription(`**New job opportunity at ${job.job_company}!**`)
     .addFields(
       {
         name: "Location",
