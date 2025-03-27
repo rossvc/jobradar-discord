@@ -68,6 +68,7 @@ async function markJobAsPosted(jobId) {
       [jobId]
     );
   } finally {
+    console.log(`Marked job ${jobId} as posted to Discord`);
     client.release();
   }
 }
