@@ -238,13 +238,22 @@ async function postJobsToDiscord() {
 function startJobPostingSchedule() {
   console.log("Starting job posting schedule...");
 
-  // Run every hour at the 15-minute mark
   cron.schedule("* * * * *", async () => {
-    console.log("Running scheduled job posting task...");
-    await postJobsToDiscord();
+    if (!client.isPostingJobs) {
+      client.isPostingJobs = true;
+      try {
+        console.log("Running scheduled job posting task...");
+        await postJobsToDiscord();
+      } finally {
+        client.isPostingJobs = false;
+      }
+    } else {
+      console.log(
+        "Job posting schedule already running - skipping new schedule creation"
+      );
+    }
   });
 
-  // Also run immediately on startup for testing
   postJobsToDiscord();
 }
 
