@@ -60,6 +60,17 @@ async function getJobsToPost() {
   }
 }
 
+async function markJobAsPosted(jobId) {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      `UPDATE job_analysis SET posted_to_discord = true WHERE id = $1`,
+      [jobId]
+    );
+  } finally {
+    client.release();
+  }
+}
 // Mark jobs as posted to Discord
 async function markJobsAsPosted(jobIds) {
   if (jobIds.length === 0) return;
@@ -173,6 +184,7 @@ async function postJobsToDiscord() {
         // Post up to 10 jobs to avoid spam
         for (const job of jobsByCategory["senior"]) {
           await channel.send({ embeds: [createJobEmbed(job)] });
+          await markJobAsPosted(job.id);
           // Small delay to avoid rate limits
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
@@ -185,6 +197,7 @@ async function postJobsToDiscord() {
       if (channel) {
         for (const job of jobsByCategory["early career"]) {
           await channel.send({ embeds: [createJobEmbed(job)] });
+          await markJobAsPosted(job.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
@@ -196,6 +209,7 @@ async function postJobsToDiscord() {
       if (channel) {
         for (const job of jobsByCategory["new grad"]) {
           await channel.send({ embeds: [createJobEmbed(job)] });
+          await markJobAsPosted(job.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
       }
