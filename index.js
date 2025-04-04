@@ -40,10 +40,11 @@ async function getJobsToPost() {
         id, job_title, job_company, job_location, remote_status, 
         experience_level, url, salary_range_min, salary_range_max,
         created_at
-      FROM job_analysis 
+      FROM todayr1 
       WHERE 
         created_at BETWEEN NOW() - INTERVAL '7 hours' AND NOW() - INTERVAL '4 hours'
-        AND is_software_engineering = true 
+        AND primary_category = 'technology'
+        AND subcategory != 'product_management'
         AND is_active = true
         AND is_us = true
         AND posted_to_discord = false
@@ -64,7 +65,7 @@ async function markJobAsPosted(jobId) {
   const client = await pool.connect();
   try {
     await client.query(
-      `UPDATE job_analysis SET posted_to_discord = true WHERE id = $1`,
+      `UPDATE todayr1 SET posted_to_discord = true WHERE id = $1`,
       [jobId]
     );
   } finally {
@@ -79,7 +80,7 @@ async function markJobsAsPosted(jobIds) {
   const client = await pool.connect();
   try {
     const query = `
-      UPDATE job_analysis 
+      UPDATE todayr1 
       SET posted_to_discord = true 
       WHERE id = ANY($1);
     `;
@@ -252,15 +253,15 @@ async function ensureDiscordColumnExists() {
     const checkQuery = `
       SELECT column_name 
       FROM information_schema.columns 
-      WHERE table_name = 'job_analysis' AND column_name = 'posted_to_discord';
+      WHERE table_name = 'todayr1' AND column_name = 'posted_to_discord';
     `;
 
     const result = await client.query(checkQuery);
 
     if (result.rows.length === 0) {
-      console.log("Adding posted_to_discord column to job_analysis table...");
+      console.log("Adding posted_to_discord column to todayr1 table...");
       await client.query(`
-        ALTER TABLE job_analysis 
+        ALTER TABLE todayr1 
         ADD COLUMN posted_to_discord BOOLEAN DEFAULT false;
       `);
       console.log("Column added successfully.");
