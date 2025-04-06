@@ -22,6 +22,7 @@ const CHANNEL_IDS = {
   EARLY_CAREER: process.env.DISCORD_CHANNEL_EARLY_CAREER,
   NEW_GRAD: process.env.DISCORD_CHANNEL_NEW_GRAD,
   INTERNSHIPS: process.env.DISCORD_CHANNEL_INTERNSHIPS,
+  ENTRY_LEVEL: process.env.DISCORD_CHANNEL_ENTRY_LEVEL,
 };
 
 // Connect to Discord
@@ -157,6 +158,7 @@ async function postJobsToDiscord() {
     senior: [],
     "early career": [],
     "new grad": [],
+    "entry level": [],
     internship: [],
   };
 
@@ -198,6 +200,18 @@ async function postJobsToDiscord() {
       const channel = await client.channels.fetch(CHANNEL_IDS.EARLY_CAREER);
       if (channel) {
         for (const job of jobsByCategory["early career"]) {
+          await channel.send({ embeds: [createJobEmbed(job)] });
+          await markJobAsPosted(job.id);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      }
+    }
+
+    // Post to entry level channel
+    if (jobsByCategory["entry level"].length > 0 && CHANNEL_IDS.ENTRY_LEVEL) {
+      const channel = await client.channels.fetch(CHANNEL_IDS.ENTRY_LEVEL);
+      if (channel) {
+        for (const job of jobsByCategory["entry level"]) {
           await channel.send({ embeds: [createJobEmbed(job)] });
           await markJobAsPosted(job.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));
