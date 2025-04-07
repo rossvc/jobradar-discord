@@ -41,15 +41,14 @@ async function getJobsToPost() {
         id, job_title, job_company, job_location, remote_status, 
         experience_level, url, salary_range_min, salary_range_max,
         created_at
-      FROM todayr1 
+      FROM killingitr1 
       WHERE 
-        created_at BETWEEN NOW() - INTERVAL '7 hours' AND NOW() - INTERVAL '4 hours'
+        created_at BETWEEN NOW() - INTERVAL '5 hours' AND NOW() - INTERVAL '4 hours'
         AND primary_category = 'technology'
-        AND subcategory != 'product_management'
         AND is_active = true
         AND is_us = true
         AND posted_to_discord = false
-      ORDER BY created_at DESC
+      ORDER BY created_at ASC
     `;
 
     const result = await client.query(query);
@@ -66,7 +65,7 @@ async function markJobAsPosted(jobId) {
   const client = await pool.connect();
   try {
     await client.query(
-      `UPDATE todayr1 SET posted_to_discord = true WHERE id = $1`,
+      `UPDATE killingitr1 SET posted_to_discord = true WHERE id = $1`,
       [jobId]
     );
   } finally {
@@ -81,7 +80,7 @@ async function markJobsAsPosted(jobIds) {
   const client = await pool.connect();
   try {
     const query = `
-      UPDATE todayr1 
+      UPDATE killingitr1 
       SET posted_to_discord = true 
       WHERE id = ANY($1);
     `;
@@ -96,7 +95,7 @@ async function markJobsAsPosted(jobIds) {
 }
 
 // Create a Discord embed for a job
-function createJobEmbed(job) {
+function createJobEmbed(job, experienceLevel) {
   const { encodeJobUrl } = require("./utils/urlUtils");
   const redirectUrl = `/redirect/${encodeJobUrl(job.url)}`;
   const fullRedirectUrl = `https://jobradar.live${redirectUrl}`;
@@ -125,19 +124,27 @@ function createJobEmbed(job) {
 
   return new EmbedBuilder()
     .setColor(color)
-    .setTitle(`${job.job_title}`)
+    .setTitle(`${experienceLevel} role @ ${job.job_company}`)
+    .setDescription(`**${job.job_title}**`)
     .setURL(fullRedirectUrl)
-    .setAuthor({ name: job.job_company })
+    .setAuthor({
+      name: "JobRadar.live",
+      iconURL: "https://jobradar.live/apple-touch-icon.png",
+      url: "https://jobradar.live",
+    })
     .addFields(
       {
         name: "Location",
-        value: locations_value || "Not specified",
+        value:
+          locations_value.length > 47
+            ? `${locations_value.substring(0, 47)}...`
+            : locations_value || "Not specified",
         inline: true,
       },
-      { name: "Remote", value: remoteStatus, inline: true },
+      { name: "Work Mode", value: remoteStatus, inline: true },
       { name: "Salary", value: salaryText }
     )
-    .setFooter({ text: "JobRadar · Apply now" });
+    .setFooter({ text: "discord.gg/jobradar" });
 }
 
 // Post jobs to appropriate Discord channels
@@ -187,7 +194,7 @@ async function postJobsToDiscord() {
       if (channel) {
         // Post up to 10 jobs to avoid spam
         for (const job of jobsByCategory["senior"]) {
-          await channel.send({ embeds: [createJobEmbed(job)] });
+          await channel.send({ embeds: [createJobEmbed(job, "Senior")] });
           await markJobAsPosted(job.id);
           // Small delay to avoid rate limits
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -200,7 +207,7 @@ async function postJobsToDiscord() {
       const channel = await client.channels.fetch(CHANNEL_IDS.EARLY_CAREER);
       if (channel) {
         for (const job of jobsByCategory["early career"]) {
-          await channel.send({ embeds: [createJobEmbed(job)] });
+          await channel.send({ embeds: [createJobEmbed(job, "Early Career")] });
           await markJobAsPosted(job.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
@@ -212,7 +219,7 @@ async function postJobsToDiscord() {
       const channel = await client.channels.fetch(CHANNEL_IDS.ENTRY_LEVEL);
       if (channel) {
         for (const job of jobsByCategory["entry level"]) {
-          await channel.send({ embeds: [createJobEmbed(job)] });
+          await channel.send({ embeds: [createJobEmbed(job, "Entry Level")] });
           await markJobAsPosted(job.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
@@ -224,7 +231,7 @@ async function postJobsToDiscord() {
       const channel = await client.channels.fetch(CHANNEL_IDS.NEW_GRAD);
       if (channel) {
         for (const job of jobsByCategory["new grad"]) {
-          await channel.send({ embeds: [createJobEmbed(job)] });
+          await channel.send({ embeds: [createJobEmbed(job, "New Grad")] });
           await markJobAsPosted(job.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
@@ -236,7 +243,7 @@ async function postJobsToDiscord() {
       const channel = await client.channels.fetch(CHANNEL_IDS.INTERNSHIPS);
       if (channel) {
         for (const job of jobsByCategory["internship"]) {
-          await channel.send({ embeds: [createJobEmbed(job)] });
+          await channel.send({ embeds: [createJobEmbed(job, "Internship")] });
           await markJobAsPosted(job.id);
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
@@ -251,7 +258,7 @@ async function postJobsToDiscord() {
 function startJobPostingSchedule() {
   console.log("Starting job posting schedule...");
 
-  cron.schedule("* * * * *", async () => {
+  cron.schedule("* 1 * * *", async () => {
     console.log("Running scheduled job posting task...");
     await postJobsToDiscord();
   });
@@ -267,15 +274,15 @@ async function ensureDiscordColumnExists() {
     const checkQuery = `
       SELECT column_name 
       FROM information_schema.columns 
-      WHERE table_name = 'todayr1' AND column_name = 'posted_to_discord';
+      WHERE table_name = 'killingitr1' AND column_name = 'posted_to_discord';
     `;
 
     const result = await client.query(checkQuery);
 
     if (result.rows.length === 0) {
-      console.log("Adding posted_to_discord column to todayr1 table...");
+      console.log("Adding posted_to_discord column to killingitr1 table...");
       await client.query(`
-        ALTER TABLE todayr1 
+        ALTER TABLE killingitr1 
         ADD COLUMN posted_to_discord BOOLEAN DEFAULT false;
       `);
       console.log("Column added successfully.");
