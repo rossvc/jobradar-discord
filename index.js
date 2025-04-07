@@ -258,7 +258,7 @@ async function postJobsToDiscord() {
 function startJobPostingSchedule() {
   console.log("Starting job posting schedule...");
 
-  cron.schedule("* 1 * * *", async () => {
+  cron.schedule("* * * * *", async () => {
     console.log("Running scheduled job posting task...");
     await postJobsToDiscord();
   });
