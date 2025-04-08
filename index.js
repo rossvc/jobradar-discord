@@ -46,7 +46,7 @@ async function getJobsToPost() {
         created_at
       FROM killingitr1 
       WHERE 
-        created_at BETWEEN NOW() - INTERVAL '5 hours 30 minutes' AND NOW() - INTERVAL '4 hours'
+        created_at BETWEEN NOW() - INTERVAL '4 hours 30 minutes' AND NOW() - INTERVAL '4 hours'
         AND primary_category = 'technology'
         AND is_active = true
         AND is_us = true
