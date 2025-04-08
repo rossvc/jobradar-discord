@@ -12,6 +12,9 @@ const client = new Client({
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   max: 5,
+  ssl: {
+    rejectUnauthorized: false,
+  },
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 5000,
 });
